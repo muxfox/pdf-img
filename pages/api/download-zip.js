@@ -12,14 +12,14 @@ export default async function handler(req, res) {
   const zip = new JSZip();
 
   images.forEach((img, i) => {
-    zip.file(\`page-\${i + 1}.png\`, img, { base64: true });
+    zip.file(`page-${i + 1}.png`, img, { base64: true });
   });
 
   const zipBuffer = await zip.generateAsync({ type: "nodebuffer" });
 
   res.setHeader("Content-Type", "application/zip");
-  res.setHeader("Content-Disposition", \`attachment; filename=converted-pages-\${id}.zip\`);
+  res.setHeader("Content-Disposition", `attachment; filename=converted-pages-${id}.zip`);
   res.status(200).send(zipBuffer);
 
-  delete imageStore[id]; // Clean up
+  delete imageStore[id];
 }

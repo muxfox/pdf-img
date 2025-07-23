@@ -46,8 +46,10 @@ export default function Home() {
           onDrop={onDrop}
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
-className={`border-4 border-dashed p-8 rounded-lg mb-4 transition-colors ${dragOver ? "border-blue-400 bg-blue-50" : "border-gray-300 bg-white"}`}
-
+          className={`border-4 border-dashed p-8 rounded-lg mb-4 transition-colors ${
+            dragOver ? "border-blue-400 bg-blue-50" : "border-gray-300 bg-white"
+          }`}
+        >
           <p className="text-gray-500">Drag & drop your PDF here</p>
           <p className="text-sm mt-2 text-gray-400">or click to upload</p>
           <input
@@ -70,8 +72,8 @@ className={`border-4 border-dashed p-8 rounded-lg mb-4 transition-colors ${dragO
           {images.map((src, i) => (
             <img
               key={i}
-              src={\`data:image/png;base64,\${src}\`}
-              alt={\`Page \${i + 1}\`}
+              src={`data:image/png;base64,${src}`}
+              alt={`Page ${i + 1}`}
               className="border rounded shadow"
             />
           ))}
@@ -79,7 +81,7 @@ className={`border-4 border-dashed p-8 rounded-lg mb-4 transition-colors ${dragO
 
         {zipId && (
           <a
-            href={\`/api/download-zip?id=\${zipId}\`}
+            href={`/api/download-zip?id=${zipId}`}
             className="mt-6 inline-block bg-green-500 text-white py-2 px-4 rounded shadow"
           >
             Download ZIP

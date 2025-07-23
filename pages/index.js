@@ -46,8 +46,8 @@ export default function Home() {
           onDrop={onDrop}
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
-          className={\`border-4 border-dashed p-8 rounded-lg mb-4 transition-colors \${dragOver ? "border-blue-400 bg-blue-50" : "border-gray-300 bg-white"}\`}
-        >
+className={`border-4 border-dashed p-8 rounded-lg mb-4 transition-colors ${dragOver ? "border-blue-400 bg-blue-50" : "border-gray-300 bg-white"}`}
+
           <p className="text-gray-500">Drag & drop your PDF here</p>
           <p className="text-sm mt-2 text-gray-400">or click to upload</p>
           <input

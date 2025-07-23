@@ -1,0 +1,496 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to PNG Converter - Free Online Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        .drag-over {
+            border-color: #3b82f6 !important;
+            background-color: rgba(59, 130, 246, 0.1) !important;
+        }
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal {
+            backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <!-- Cookie Consent Banner -->
+    <div id="cookieConsent" class="fixed bottom-0 left-0 right-0 bg-gray-900 text-white p-4 z-50 transform translate-y-full transition-transform duration-300">
+        <div class="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p class="text-sm">We use cookies to enhance your experience. By continuing to visit this site you agree to our use of cookies.</p>
+            <div class="flex gap-2">
+                <button onclick="acceptCookies()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-sm transition-colors">Accept</button>
+                <button onclick="declineCookies()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded text-sm transition-colors">Decline</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="text-2xl font-bold text-blue-600">PDF2PNG</div>
+                <div class="hidden md:flex space-x-6">
+                    <a href="#home" onclick="showPage('home')" class="text-gray-700 hover:text-blue-600 transition-colors">Home</a>
+                    <a href="#terms" onclick="showPage('terms')" class="text-gray-700 hover:text-blue-600 transition-colors">Terms</a>
+                    <a href="#privacy" onclick="showPage('privacy')" class="text-gray-700 hover:text-blue-600 transition-colors">Privacy</a>
+                    <a href="#cookies" onclick="showPage('cookies')" class="text-gray-700 hover:text-blue-600 transition-colors">Cookies</a>
+                </div>
+                <button class="md:hidden" onclick="toggleMobileMenu()">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="mobileMenu" class="hidden md:hidden mt-4 space-y-2">
+                <a href="#home" onclick="showPage('home')" class="block text-gray-700 hover:text-blue-600 transition-colors">Home</a>
+                <a href="#terms" onclick="showPage('terms')" class="block text-gray-700 hover:text-blue-600 transition-colors">Terms</a>
+                <a href="#privacy" onclick="showPage('privacy')" class="block text-gray-700 hover:text-blue-600 transition-colors">Privacy</a>
+                <a href="#cookies" onclick="showPage('cookies')" class="block text-gray-700 hover:text-blue-600 transition-colors">Cookies</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Home Page -->
+        <div id="homePage" class="page">
+            <!-- Hero Section -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-6xl font-bold text-gray-800 mb-4">Convert PDF to PNG</h1>
+                <p class="text-xl text-gray-600 mb-8">Transform your PDF documents into high-quality PNG images instantly</p>
+                <div class="flex justify-center mb-8">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/1a7a007c-f410-4057-bf78-63062a97f841.png" alt="Professional workspace showing PDF documents being converted to PNG images on a modern computer screen with clean interface design" class="rounded-lg shadow-xl" />
+                </div>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="max-w-4xl mx-auto">
+                <div id="uploadArea" class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center transition-all duration-300 hover:border-blue-400 hover:bg-blue-50">
+                    <div id="uploadContent">
+                        <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Drop your PDF file here</h3>
+                        <p class="text-gray-500 mb-4">or click to browse your files</p>
+                        <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors font-medium">
+                            Choose PDF File
+                        </button>
+                        <input type="file" id="fileInput" accept=".pdf" class="hidden" onchange="handleFile(this.files[0])">
+                        <p class="text-sm text-gray-400 mt-4">Supported format: PDF (Max 50MB)</p>
+                    </div>
+                    
+                    <div id="loadingContent" class="hidden">
+                        <div class="loading-spinner mx-auto h-12 w-12 text-blue-600 mb-4">
+                            <svg class="animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Converting your PDF...</h3>
+                        <p class="text-gray-500">Please wait while we process your document</p>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mt-4">
+                            <div id="progressBar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div id="resultsSection" class="hidden mt-12">
+                    <div class="bg-white rounded-lg shadow-xl p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-bold text-gray-800">Converted Images</h2>
+                            <div class="flex gap-4">
+                                <button onclick="downloadAllImages()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors font-medium">
+                                    Download ZIP
+                                </button>
+                                <button onclick="resetConverter()" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-colors font-medium">
+                                    Convert Another
+                                </button>
+                            </div>
+                        </div>
+                        <div id="imageGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="mt-20 max-w-6xl mx-auto">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Why Choose Our PDF to PNG Converter?</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="text-center p-6 bg-white rounded-lg shadow-lg">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Lightning Fast</h3>
+                        <p class="text-gray-600">Convert your PDF files to PNG images in seconds with our optimized processing engine.</p>
+                    </div>
+                    <div class="text-center p-6 bg-white rounded-lg shadow-lg">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">High Quality</h3>
+                        <p class="text-gray-600">Maintain the original quality and resolution of your PDF pages in the converted PNG images.</p>
+                    </div>
+                    <div class="text-center p-6 bg-white rounded-lg shadow-lg">
+                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">100% Secure</h3>
+                        <p class="text-gray-600">All processing happens in your browser. Your files never leave your device.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Terms Page -->
+        <div id="termsPage" class="page hidden">
+            <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-8">Terms of Service</h1>
+                <div class="prose prose-lg max-w-none text-gray-600 space-y-6">
+                    <h2 class="text-2xl font-semibold text-gray-800">1. Acceptance of Terms</h2>
+                    <p>By accessing and using PDF2PNG, you accept and agree to be bound by the terms and provision of this agreement.</p>
+                    
+                    <h2 class="text-2xl font-semibold text-gray-800">2. Use License</h2>
+                    <p>Permission is granted to temporarily download one copy of PDF2PNG for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:</p>
+                    <ul class="list-disc pl-6">
+                        <li>modify or copy the materials</li>
+                        <li>use the materials for any commercial purpose</li>
+                        <li>attempt to reverse engineer any software contained on the website</li>
+                    </ul>
+                    
+                    <h2 class="text-2xl font-semibold text-gray-800">3. Privacy</h2>
+                    <p>All file processing is done locally in your browser. We do not store, save, or have access to your files or converted images.</p>
+                    
+                    <h2 class="text-2xl font-semibold text-gray-800">4. Limitations</h2>
+                    <p>In no event shall PDF2PNG or its suppliers be liable for any damages arising out of the use or inability to use the service.</p>
+                    
+                    <h2 class="text-2xl font-semibold text-gray-800">5. Contact Information</h2>
+                    <p>If you have any questions about these Terms of Service, please contact us at terms@pdf2png.com</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Privacy Page -->
+        <div id="privacyPage" class="page hidden">
+            <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-8">Privacy Policy</h1>
+                <div class="prose prose-lg max-w-none text-gray-600 space-y-6">
+                    <h2 class="text-2xl font-semibold text-gray-800">1. Information We Collect</h2>
+                    <p>We collect minimal information to provide our service. All PDF processing happens locally in your browser, and we never store your files.</p>
+                    
+                    <h2 class="text-2xl font-semibold text-gray-800">2. How We Use Information</h2>
+                    <p>We may collect anonymous usage statistics to improve our service, but we never collect or store personal files or data.</p>
+                    
+                    <h2 class="text-2xl font-semibold text-gray-800">3. Data Security</h2>
+                    <p>Your uploaded PDF files and converted PNG images are processed entirely in your browser and never transmitted to our servers. Your data remains private and secure.</p>
+                    
+                    <h2 class="text-2xl font-semibold text-gray-800">4. Cookies</h2>
+                    <p>We use minimal cookies to remember your preferences and provide basic analytics. You can disable cookies in your browser settings.</p>
+                    
+                    <h2 class="text-2xl font-semibold text-gray-800">5. Third-Party Services</h2>
+                    <p>We may use third-party analytics services to understand how our service is used, but no personal files or data are shared.</p>
+                    
+                    <h2 class="text-2xl font-semibold text-gray-800">6. Contact Us</h2>
+                    <p>If you have questions about this Privacy Policy, contact us at privacy@pdf2png.com</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cookie Policy Page -->
+        <div id="cookiesPage" class="page hidden">
+            <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-8">Cookie Policy</h1>
+                <div class="prose prose-lg max-w-none text-gray-600 space-y-6">
+                    <h2 class="text-2xl font-semibold text-gray-800">What Are Cookies</h2>
+                    <p>Cookies are small text files that are placed on your computer by websites that you visit. They are widely used to make websites work, or work more efficiently, as well as to provide information to the owners of the site.</p>
+                    
+                    <h2 class="text-2xl font-semibold text-gray-800">How We Use Cookies</h2>
+                    <p>We use cookies for the following purposes:</p>
+                    <ul class="list-disc pl-6">
+                        <li><strong>Essential cookies:</strong> These cookies are essential for you to browse the website and use its features</li>
+                        <li><strong>Analytics cookies:</strong> These cookies allow us to analyze how visitors use our website</li>
+                        <li><strong>Preference cookies:</strong> These cookies remember your preferences and settings</li>
+                    </ul>
+                    
+                    <h2 class="text-2xl font-semibold text-gray-800">Types of Cookies We Use</h2>
+                    <h3 class="text-xl font-semibold text-gray-800">Session Cookies</h3>
+                    <p>These cookies are deleted when you close your browser and are used to maintain your session while using our service.</p>
+                    
+                    <h3 class="text-xl font-semibold text-gray-800">Persistent Cookies</h3>
+                    <p>These cookies remain on your device for a set period and help us remember your preferences.</p>
+                    
+                    <h2 class="text-2xl font-semibold text-gray-800">Managing Cookies</h2>
+                    <p>You can control and/or delete cookies as you wish. You can delete all cookies that are already on your computer and you can set most browsers to prevent them from being placed.</p>
+                    
+                    <h2 class="text-2xl font-semibold text-gray-800">Contact Us</h2>
+                    <p>If you have any questions about our Cookie Policy, please contact us at cookies@pdf2png.com</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12 mt-20">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">PDF2PNG</h3>
+                    <p class="text-gray-300">Free, fast, and secure PDF to PNG conversion tool. Process your documents without uploading to any server.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Features</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>High Quality Conversion</li>
+                        <li>Batch Processing</li>
+                        <li>ZIP Download</li>
+                        <li>Client-Side Processing</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Legal</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="#terms" onclick="showPage('terms')" class="hover:text-blue-400 transition-colors">Terms of Service</a></li>
+                        <li><a href="#privacy" onclick="showPage('privacy')" class="hover:text-blue-400 transition-colors">Privacy Policy</a></li>
+                        <li><a href="#cookies" onclick="showPage('cookies')" class="hover:text-blue-400 transition-colors">Cookie Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Contact</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>support@pdf2png.com</li>
+                        <li>help@pdf2png.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
+                <p>© 2024 PDF2PNG. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        
+        let convertedImages = [];
+        let currentFileName = '';
+
+        // Initialize cookie consent
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!localStorage.getItem('cookieConsent')) {
+                setTimeout(() => {
+                    document.getElementById('cookieConsent').style.transform = 'translateY(0)';
+                }, 1000);
+            }
+        });
+
+        function acceptCookies() {
+            localStorage.setItem('cookieConsent', 'accepted');
+            document.getElementById('cookieConsent').style.transform = 'translateY(100%)';
+        }
+
+        function declineCookies() {
+            localStorage.setItem('cookieConsent', 'declined');
+            document.getElementById('cookieConsent').style.transform = 'translateY(100%)';
+        }
+
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('hidden');
+            });
+            
+            // Show selected page
+            document.getElementById(pageId + 'Page').classList.remove('hidden');
+            
+            // Close mobile menu
+            document.getElementById('mobileMenu').classList.add('hidden');
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        }
+
+        // Drag and drop functionality
+        const uploadArea = document.getElementById('uploadArea');
+
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file || file.type !== 'application/pdf') {
+                alert('Please select a valid PDF file.');
+                return;
+            }
+
+            if (file.size > 50 * 1024 * 1024) { // 50MB limit
+                alert('File size must be less than 50MB.');
+                return;
+            }
+
+            currentFileName = file.name.replace('.pdf', '');
+            convertPdfToPng(file);
+        }
+
+        async function convertPdfToPng(file) {
+            try {
+                showLoading();
+                convertedImages = [];
+
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+                const totalPages = pdf.numPages;
+
+                for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+                    updateProgress((pageNum - 1) / totalPages * 100);
+                    
+                    const page = await pdf.getPage(pageNum);
+                    const viewport = page.getViewport({ scale: 2.0 });
+                    
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    await page.render({
+                        canvasContext: context,
+                        viewport: viewport
+                    }).promise;
+
+                    const imageDataUrl = canvas.toDataURL('image/png');
+                    convertedImages.push({
+                        pageNum: pageNum,
+                        dataUrl: imageDataUrl,
+                        blob: await fetch(imageDataUrl).then(r => r.blob())
+                    });
+                }
+
+                updateProgress(100);
+                setTimeout(() => {
+                    showResults();
+                }, 500);
+
+            } catch (error) {
+                console.error('Error converting PDF:', error);
+                alert('Error converting PDF. Please try again.');
+                resetConverter();
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('uploadContent').style.display = 'none';
+            document.getElementById('loadingContent').classList.remove('hidden');
+        }
+
+        function updateProgress(percent) {
+            document.getElementById('progressBar').style.width = percent + '%';
+        }
+
+        function showResults() {
+            document.getElementById('uploadArea').style.display = 'none';
+            document.getElementById('resultsSection').classList.remove('hidden');
+            
+            const imageGrid = document.getElementById('imageGrid');
+            imageGrid.innerHTML = '';
+
+            convertedImages.forEach((image, index) => {
+                const imageCard = document.createElement('div');
+                imageCard.className = 'bg-gray-50 rounded-lg p-4 fade-in';
+                imageCard.innerHTML = `
+                    <img src="${image.dataUrl}" alt="Converted PNG image of page ${image.pageNum} from PDF document" class="w-full h-48 object-cover rounded mb-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-700">Page ${image.pageNum}</span>
+                        <button onclick="downloadSingleImage(${index})" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                            Download
+                        </button>
+                    </div>
+                `;
+                imageGrid.appendChild(imageCard);
+            });
+        }
+
+        function downloadSingleImage(index) {
+            const image = convertedImages[index];
+            const link = document.createElement('a');
+            link.href = image.dataUrl;
+            link.download = `${currentFileName}_page_${image.pageNum}.png`;
+            link.click();
+        }
+
+        async function downloadAllImages() {
+            try {
+                const zip = new JSZip();
+                
+                convertedImages.forEach((image) => {
+                    const base64Data = image.dataUrl.split(',')[1];
+                    zip.file(`${currentFileName}_page_${image.pageNum}.png`, base64Data, {base64: true});
+                });
+
+                const blob = await zip.generateAsync({type: 'blob'});
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `${currentFileName}_converted_pages.zip`;
+                link.click();
+                URL.revokeObjectURL(link.href);
+            } catch (error) {
+                console.error('Error creating ZIP:', error);
+                alert('Error creating ZIP file. Please try downloading individual images.');
+            }
+        }
+
+        function resetConverter() {
+            document.getElementById('uploadArea').style.display = 'block';
+            document.getElementById('uploadContent').style.display = 'block';
+            document.getElementById('loadingContent').classList.add('hidden');
+            document.getElementById('resultsSection').classList.add('hidden');
+            document.getElementById('fileInput').value = '';
+            document.getElementById('progressBar').style.width = '0%';
+            convertedImages = [];
+            currentFileName = '';
+        }
+    </script>
+</body>
+</html>
+
